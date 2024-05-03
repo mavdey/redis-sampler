@@ -4,15 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d04bf326-9925-40e9-887f-d8d9bd1be5e4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="d04bf326-9925-40e9-887f-d8d9bd1be5e4" name="Changes" comment="Initial commit">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/JMeterPluginUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/JMeterPluginUtils.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/RedisSampler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/RedisSampler.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/gui/GuiUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/gui/GuiUtils.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/gui/RedisSamplerGui.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/gui/RedisSamplerGui.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,6 +68,14 @@
       <option name="presentableId" value="Default" />
       <updated>1713519126833</updated>
     </task>
+    <task id="LOCAL-00001" summary="Initial commit">
+      <created>1713981035952</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1713981035952</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -86,5 +88,9 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Initial commit" />
+    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
   </component>
 </project>

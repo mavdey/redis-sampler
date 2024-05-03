@@ -16,7 +16,6 @@ import java.nio.charset.Charset;
 
 public class RedisSampler extends AbstractSampler implements ThreadListener, TestStateListener, Interruptible {
     protected static final ThreadLocal<JedisPool> threadLocalCachedConnection = new ThreadLocal<>();
-    protected static final ThreadLocal<Jedis> threadLocalCachedJedis = new ThreadLocal<>();
     private static final Logger log = LoggerFactory.getLogger(RedisSampler.class);
     private static final long serialVersionUID = 242L;
     private static final String REDIS_HOST_PROP = "RedisSampler.connection.host";
@@ -29,7 +28,6 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
     private static final String REDIS_KEY_PROP = "RedisSampler.request.key";
     private static final String REDIS_VALUE_PROP = "RedisSampler.request.value";
     private static final String REDIS_EXPIRE_PROP = "RedisSampler.request.expire";
-    private Jedis jedis;
 
     public RedisSampler() {
         super();
@@ -118,33 +116,28 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
 
 
     public void initConnectionPool() {
-        Jedis jedis = threadLocalCachedJedis.get();
-        if (jedis == null) {
-            JedisPool pool = threadLocalCachedConnection.get();
-            if (pool == null) {
-                String host = getPropertyAsString(REDIS_HOST_PROP);
-                int port = getPropertyAsInt(REDIS_PORT_PROP);
-                String password = getPropertyAsString(REDIS_PASSWORD_PROP);
-                int timeout = getPropertyAsInt(REDIS_TIMEOUT_PROP);
-                int database = getPropertyAsInt(REDIS_DATABASE_PROP);
-                String clientName = getPropertyAsString(REDIS_CLIENT_NAME_PROP);
+        JedisPool pool = threadLocalCachedConnection.get();
+        if (pool == null) {
+            String host = getPropertyAsString(REDIS_HOST_PROP);
+            int port = getPropertyAsInt(REDIS_PORT_PROP);
+            String password = getPropertyAsString(REDIS_PASSWORD_PROP);
+            int timeout = getPropertyAsInt(REDIS_TIMEOUT_PROP);
+            int database = getPropertyAsInt(REDIS_DATABASE_PROP);
+            String clientName = getPropertyAsString(REDIS_CLIENT_NAME_PROP);
 
-                log.debug("initConnectionPool()");
-                log.debug("%s:%s;%s;%s;%s;%s".formatted(host, port, timeout, password, database, clientName));
-                if (password.equals("")) {
-                    password = null;
-                }
-                if (clientName.equals("")) {
-                    clientName = null;
-                }
-
-                pool = new JedisPool(new JedisPoolConfig(), host, port, timeout, password, database, clientName);
-                threadLocalCachedConnection.set(pool);
+            log.debug("initConnectionPool()");
+            log.debug("%s:%s;%s;%s;%s;%s".formatted(host, port, timeout, password, database, clientName));
+            if (password.equals("")) {
+                password = null;
             }
-            log.info(pool.toString());
-            jedis = pool.getResource();
-            threadLocalCachedJedis.set(jedis);
+            if (clientName.equals("")) {
+                clientName = null;
+            }
+            JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+            pool = new JedisPool(jedisPoolConfig, host, port, timeout, password, database, clientName);
+            threadLocalCachedConnection.set(pool);
         }
+        log.debug(pool.toString());
     }
 
 
@@ -179,10 +172,6 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
     public void threadFinished() {
         log.debug("threadFinished() + %s".formatted(Thread.currentThread().getName()));
         JedisPool pool = threadLocalCachedConnection.get();
-        Jedis jedis = threadLocalCachedJedis.get();
-        if (jedis != null) {
-            jedis.close();
-        }
         if (pool != null) {
             pool.close();
         }
@@ -191,9 +180,9 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
     @Override
     public SampleResult sample(Entry entry) {
         log.debug("SampleResult sample(%s)".formatted(entry));
-        if (jedis == null) {
+        JedisPool pool = threadLocalCachedConnection.get();
+        if (pool == null) {
             initConnectionPool();
-            jedis = threadLocalCachedJedis.get();
         }
         String operation = getPropertyAsString(REDIS_OPERATION_PROP);
         String key = getPropertyAsString(REDIS_KEY_PROP);
@@ -201,10 +190,10 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
         long expire = getPropertyAsLong(REDIS_EXPIRE_PROP);
         SampleResult result = new SampleResult();
         result.setSampleLabel(getName());
-        result.sampleStart(); // start stopwatch
 
-        try {
+        try (Jedis jedis = pool.getResource()){
             long start = System.nanoTime();
+            result.sampleStart(); // start stopwatch
             var response = switch (operation) {
                 case "GET" -> jedis.get(key);
                 case "SETEX" -> jedis.setex(key, expire, value);
@@ -213,8 +202,8 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
                 case "DEL" -> jedis.del(key);
                 default -> throw new Exception();
             };
-            long end = System.nanoTime() - start;
             result.sampleEnd(); // stop stopwatch
+            long end = System.nanoTime() - start;
             result.setResponseData("""
                     {
                         "operation": "%s",
