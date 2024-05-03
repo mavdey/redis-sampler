@@ -7,7 +7,7 @@
     <groupId>ru.beeline.lt.jmeter</groupId>
     <artifactId>redis-sampler</artifactId>
     <packaging>jar</packaging>
-    <version>0.3</version>
+    <version>0.4</version>
     <name>Redis Sampler</name>
     <description>Redis Sampler</description>
 
