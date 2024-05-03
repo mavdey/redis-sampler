@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="d04bf326-9925-40e9-887f-d8d9bd1be5e4" name="Changes" comment="Initial commit">
+    <list default="true" id="d04bf326-9925-40e9-887f-d8d9bd1be5e4" name="Changes" comment="bugfix">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/RedisSampler.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/ru/beeline/lt/RedisSampler.java" afterDir="false" />
     </list>
@@ -75,7 +75,21 @@
       <option name="project" value="LOCAL" />
       <updated>1713981035952</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="bugfix">
+      <created>1714729220927</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1714729220927</updated>
+    </task>
+    <task id="LOCAL-00003" summary="bugfix">
+      <created>1714729251031</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1714729251031</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -91,6 +105,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
+    <MESSAGE value="bugfix" />
+    <option name="LAST_COMMIT_MESSAGE" value="bugfix" />
   </component>
 </project>

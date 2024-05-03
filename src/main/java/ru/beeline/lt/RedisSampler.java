@@ -114,8 +114,7 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
         setProperty(REDIS_EXPIRE_PROP, expire);
     }
 
-
-    public void initConnectionPool() {
+    public JedisPool initConnectionPool() {
         JedisPool pool = threadLocalCachedConnection.get();
         if (pool == null) {
             String host = getPropertyAsString(REDIS_HOST_PROP);
@@ -138,6 +137,7 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
             threadLocalCachedConnection.set(pool);
         }
         log.debug(pool.toString());
+        return pool;
     }
 
 
@@ -182,7 +182,7 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
         log.debug("SampleResult sample(%s)".formatted(entry));
         JedisPool pool = threadLocalCachedConnection.get();
         if (pool == null) {
-            initConnectionPool();
+            pool = initConnectionPool();
         }
         String operation = getPropertyAsString(REDIS_OPERATION_PROP);
         String key = getPropertyAsString(REDIS_KEY_PROP);
@@ -191,7 +191,7 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
         SampleResult result = new SampleResult();
         result.setSampleLabel(getName());
 
-        try (Jedis jedis = pool.getResource()){
+        try (Jedis jedis = pool.getResource()) {
             long start = System.nanoTime();
             result.sampleStart(); // start stopwatch
             var response = switch (operation) {
