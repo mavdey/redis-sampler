@@ -15,7 +15,7 @@ import redis.clients.jedis.JedisPoolConfig;
 import java.nio.charset.Charset;
 
 public class RedisSampler extends AbstractSampler implements ThreadListener, TestStateListener, Interruptible {
-    protected static final ThreadLocal<JedisPool> threadLocalCachedConnection = new ThreadLocal<>();
+    protected static final ThreadLocal<JedisPool> THREAD_LOCAL_CACHED_CONNECTION = new ThreadLocal<>();
     private static final Logger log = LoggerFactory.getLogger(RedisSampler.class);
     private static final long serialVersionUID = 242L;
     private static final String REDIS_HOST_PROP = "RedisSampler.connection.host";
@@ -115,7 +115,7 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
     }
 
     public JedisPool initConnectionPool() {
-        JedisPool pool = threadLocalCachedConnection.get();
+        JedisPool pool = THREAD_LOCAL_CACHED_CONNECTION.get();
         if (pool == null) {
             String host = getPropertyAsString(REDIS_HOST_PROP);
             int port = getPropertyAsInt(REDIS_PORT_PROP);
@@ -133,8 +133,10 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
                 clientName = null;
             }
             JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+            jedisPoolConfig.setMaxTotal(1000);
+            jedisPoolConfig.setMaxIdle(1000);
             pool = new JedisPool(jedisPoolConfig, host, port, timeout, password, database, clientName);
-            threadLocalCachedConnection.set(pool);
+            THREAD_LOCAL_CACHED_CONNECTION.set(pool);
         }
         log.debug(pool.toString());
         return pool;
@@ -143,12 +145,14 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
 
     @Override
     public void testStarted() {
-        log.info("testStarted() Redis Sampler version 0.3");
+        log.info("testStarted() Redis Sampler version 0.4");
+        log.info(initConnectionPool().toString());
     }
 
     @Override
     public void testStarted(String host) {
-        log.info("testStarted(%s) Redis Sampler version 0.3".formatted(host));
+        log.info("testStarted(%s) Redis Sampler version 0.4".formatted(host));
+        initConnectionPool();
     }
 
     @Override
@@ -171,7 +175,7 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
     @Override
     public void threadFinished() {
         log.debug("threadFinished() + %s".formatted(Thread.currentThread().getName()));
-        JedisPool pool = threadLocalCachedConnection.get();
+        JedisPool pool = THREAD_LOCAL_CACHED_CONNECTION.get();
         if (pool != null) {
             pool.close();
         }
@@ -180,7 +184,7 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
     @Override
     public SampleResult sample(Entry entry) {
         log.debug("SampleResult sample(%s)".formatted(entry));
-        JedisPool pool = threadLocalCachedConnection.get();
+        JedisPool pool = THREAD_LOCAL_CACHED_CONNECTION.get();
         if (pool == null) {
             pool = initConnectionPool();
         }
