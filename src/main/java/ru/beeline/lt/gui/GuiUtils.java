@@ -25,11 +25,11 @@ public class GuiUtils {
     /**
      * Color for disabled elements when UIDefaults color is undefined
      */
-    private static Color DEFAULT_DISABLED_COLOR = Color.GRAY;
+    private static final Color DEFAULT_DISABLED_COLOR = Color.GRAY;
     /**
      * Color for foreground when UIDefaults color is undefined
      */
-    private static Color DEFAULT_FOREGROUND_COLOR = Color.BLACK;
+    private static final Color DEFAULT_FOREGROUND_COLOR = Color.BLACK;
 
     public static Color getLookAndFeelColor(String colorKey) {
         Color color;

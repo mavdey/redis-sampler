@@ -19,7 +19,7 @@ public class RedisSamplerGui extends AbstractSamplerGui {
 
     private static final Logger log = LoggerFactory.getLogger(RedisSamplerGui.class);
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 5038407619754740373L;
 
     private JTextField clientNameField;
     private JTextField hostField;
@@ -102,11 +102,15 @@ public class RedisSamplerGui extends AbstractSamplerGui {
         requestPanel.add(Box.createHorizontalStrut(10));
         JLabel operationLabel = new JLabel("Operation: ");
         requestPanel.add(operationLabel);
-        operationSelector = new JComboBox<>(new String[]{"GET", "SETEX", "EXISTS", "PEXPIRE", "DEL"});
+        operationSelector = new JComboBox<>(new String[]{"GET", "SET", "SETEX", "EXISTS", "DEL", "PEXPIRE"});
         operationSelector.addActionListener(e -> {
             switch ((String) operationSelector.getSelectedItem()) {
                 case "GET", "EXISTS", "DEL" -> {
                     valueField.setEnabled(false);
+                    expireField.setEnabled(false);
+                }
+                case "SET" -> {
+                    valueField.setEnabled(true);
                     expireField.setEnabled(false);
                 }
                 case "SETEX" -> {
@@ -114,8 +118,8 @@ public class RedisSamplerGui extends AbstractSamplerGui {
                     expireField.setEnabled(true);
                 }
                 case "PEXPIRE" -> {
-                    expireField.setEnabled(true);
                     valueField.setEnabled(false);
+                    expireField.setEnabled(true);
                 }
             }
         });
@@ -248,7 +252,7 @@ public class RedisSamplerGui extends AbstractSamplerGui {
 
         try {
             String literalContent = JMeterPluginUtils.stripJMeterVariables(doc.getText(0, doc.getLength()));
-            if (literalContent.trim().length() > 0) {
+            if (!literalContent.trim().isEmpty()) {
                 int value = Integer.parseInt(literalContent);
                 ok = value >= min && value <= max;
                 isNumber = true;

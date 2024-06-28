@@ -12,12 +12,14 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.nio.charset.Charset;
 
 public class RedisSampler extends AbstractSampler implements ThreadListener, TestStateListener, Interruptible {
     protected static final ThreadLocal<JedisPool> THREAD_LOCAL_CACHED_CONNECTION = new ThreadLocal<>();
     private static final Logger log = LoggerFactory.getLogger(RedisSampler.class);
-    private static final long serialVersionUID = 242L;
+    private static final long serialVersionUID = -7043041976771463703L;
     private static final String REDIS_HOST_PROP = "RedisSampler.connection.host";
     private static final String REDIS_PORT_PROP = "RedisSampler.connection.port";
     private static final String REDIS_CLIENT_NAME_PROP = "RedisSampler.connection.client_name";
@@ -126,10 +128,10 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
 
             log.debug("initConnectionPool()");
             log.debug("%s:%s;%s;%s;%s;%s".formatted(host, port, timeout, password, database, clientName));
-            if (password.equals("")) {
+            if (password.isEmpty()) {
                 password = null;
             }
-            if (clientName.equals("")) {
+            if (clientName.isEmpty()) {
                 clientName = null;
             }
             JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
@@ -146,7 +148,7 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
     @Override
     public void testStarted() {
         log.info("testStarted() Redis Sampler version 0.4");
-        log.info(initConnectionPool().toString());
+        initConnectionPool();
     }
 
     @Override
@@ -201,10 +203,11 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
             var response = switch (operation) {
                 case "GET" -> jedis.get(key);
                 case "SETEX" -> jedis.setex(key, expire, value);
+                case "SET" -> jedis.set(key, value);
                 case "PEXPIRE" -> jedis.pexpire(key, expire);
                 case "EXISTS" -> jedis.exists(key);
                 case "DEL" -> jedis.del(key);
-                default -> throw new Exception();
+                default -> throw new IllegalStateException("Unexpected value: " + operation);
             };
             result.sampleEnd(); // stop stopwatch
             long end = System.nanoTime() - start;
@@ -225,10 +228,10 @@ public class RedisSampler extends AbstractSampler implements ThreadListener, Tes
             result.setResponseMessage("Exception: " + e);
 
             // get stack trace as a String to return as document data
-            java.io.StringWriter stringWriter = new java.io.StringWriter();
-            e.printStackTrace(new java.io.PrintWriter(stringWriter));
+            StringWriter stringWriter = new StringWriter();
+            e.printStackTrace(new PrintWriter(stringWriter));
             result.setResponseData(stringWriter.toString(), Charset.defaultCharset().name());
-            result.setDataType(org.apache.jmeter.samplers.SampleResult.TEXT);
+            result.setDataType(SampleResult.TEXT);
             result.setResponseCode("500");
         }
         return result;
